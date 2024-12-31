@@ -21,6 +21,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     libxmlsec1-dev \
     liblzma-dev \
     ca-certificates \
+    nvidia-container-toolkit \
     && curl -O https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz \
     && tar -xzf Python-${PYTHON_VERSION}.tgz \
     && cd Python-${PYTHON_VERSION} \
@@ -33,6 +34,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     && ln -s /usr/local/bin/pip3.10 /usr/local/bin/pip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
 
 RUN pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 \
     && apt-get update && apt-get install -y libgl1-mesa-glx
