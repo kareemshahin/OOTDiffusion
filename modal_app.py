@@ -8,32 +8,42 @@ dockerfile_image = (
     .pip_install("torch==2.0.1")
     .pip_install("torchvision==0.15.2")
     .pip_install("torchaudio==2.0.2")
-    .pip_install("numpy==1.24.4")
-    .pip_install("scipy==1.10.1")
-    .pip_install("scikit-image==0.21.0")
-    .pip_install("opencv-python==4.7.0.72")
-    .pip_install("pillow==9.4.0")
-    .pip_install("diffusers==0.24.0")
-    .pip_install("transformers==4.36.2")
-    .pip_install("accelerate==0.26.1")
-    .pip_install("matplotlib==3.7.4")
-    .pip_install("tqdm==4.64.1")
-    .pip_install("gradio==4.16.0")
-    .pip_install("config==0.5.1")
-    .pip_install("einops==0.7.0")
-    .pip_install("onnxruntime==1.16.2")
+    .pip_install_from_requirements("./requirements.txt")
     .pip_install("huggingface_hub==0.25.2")
-    .add_local_dir("/Users/kareem/sandbox/baxter/try-on/OOTDiffusion", remote_path="/app")
+    .add_local_dir(".", remote_path="/app")
+    #.pip_install("numpy==1.24.4")
+    #.pip_install("scipy==1.10.1")
+    #.pip_install("scikit-image==0.21.0")
+    #.pip_install("opencv-python==4.7.0.72")
+    #.pip_install("pillow==9.4.0")
+    #.pip_install("diffusers==0.24.0")
+    #.pip_install("transformers==4.36.2")
+    #.pip_install("accelerate==0.26.1")
+    #.pip_install("matplotlib==3.7.4")
+    #.pip_install("tqdm==4.64.1")
+    #.pip_install("gradio==4.16.0")
+    #.pip_install("config==0.5.1")
+    #.pip_install("einops==0.7.0")
+    #.pip_install("onnxruntime==1.16.2")
 )
-vol = modal.Volume.from_name("ootd-checkpoints")
+checkpoints = modal.Volume.from_name("ootd-checkpoints")
+viton_output = modal.Volume.from_name("viton_output")
+input_images = modal.Volume.from_name("input_images")
 
-@app.function(gpu="A100", image=dockerfile_image, volumes={"/app/checkpoints": vol})
+volume_map = {
+    "/app/checkpoints": checkpoints,
+    "/app/run/outputs": viton_output,
+    "/app/run/inputs": input_images,
+}
+WORKING_DIR = "/app/run"
+
+@app.function(gpu="A100", image=dockerfile_image, volumes=volume_map)
 def test():
     import subprocess
 
     cmdz = [
         "python",
-        "/app/run/run_ootd.py",
+        "run_ootd.py",
         "--model_path",
         "/app/run/examples/model/01008_00.jpg",
         "--cloth_path",
@@ -44,6 +54,10 @@ def test():
         "4"
     ]
 
-    retcode = subprocess.run(cmdz)
+    retcode = subprocess.run(cmdz, cwd=WORKING_DIR)
     print(retcode)
 
+
+@app.local_entrypoint()
+def main():
+    test.remote()

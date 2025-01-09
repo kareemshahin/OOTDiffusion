@@ -50,6 +50,13 @@ elif model_type == "dc":
 else:
     raise ValueError("model_type must be \'hd\' or \'dc\'!")
 
+IMAGE_OUTPUT_VOLUME = "outputs"
+def generate_filename(idx = 0):
+    from datetime import datetime
+
+    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+    return f"{timestamp}_{idx}.png"
+
 
 if __name__ == '__main__':
 
@@ -64,7 +71,7 @@ if __name__ == '__main__':
     mask, mask_gray = get_mask_location(model_type, category_dict_utils[category], model_parse, keypoints)
     mask = mask.resize((768, 1024), Image.NEAREST)
     mask_gray = mask_gray.resize((768, 1024), Image.NEAREST)
-    
+
     masked_vton_img = Image.composite(mask_gray, model_img, mask)
     masked_vton_img.save('./images_output/mask.jpg')
 
@@ -83,5 +90,6 @@ if __name__ == '__main__':
 
     image_idx = 0
     for image in images:
-        image.save('./images_output/out_' + model_type + '_' + str(image_idx) + '.png')
+        #image.save('./images_output/out_' + model_type + '_' + str(image_idx) + '.png')
+        image.save(f"./{IMAGE_OUTPUT_VOLUME}/{generate_filename(image_idx)}")
         image_idx += 1
