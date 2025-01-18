@@ -10,6 +10,7 @@ dockerfile_image = (
     .pip_install("torchaudio==2.0.2")
     .pip_install_from_requirements("./requirements.txt")
     .pip_install("huggingface_hub==0.25.2")
+    .workdir("/app/run")
     .add_local_dir(".", remote_path="/app")
 )
 checkpoints = modal.Volume.from_name("ootd-checkpoints")
@@ -25,6 +26,42 @@ WORKING_DIR = "/app/run"
 
 @app.function(gpu="A100", image=dockerfile_image, volumes=volume_map)
 def try_on(
+    model_path="/app/run/examples/model/01008_00.jpg",
+    cloth_path="/app/run/examples/garment/00055_00.jpg",
+    category="full", scale=2.0, sample=1
+):
+    from ootd_generator import OOTDGenerator
+
+    model_type = 'dc'
+    input_category = 2
+
+    if category in ['lower', 'upper']:
+        model_type = 'hd'
+        input_category = 0 if category == 'upper' else 1
+
+    scale = float(scale)
+    input_category = int(input_category)
+    sample = int(sample)
+
+    ootd_generator = OOTDGenerator(
+        gpu_id=0,
+        model_path=model_path,
+        cloth_path=cloth_path,
+        model_type=model_type,
+        category=input_category,
+        scale=scale,
+        step=20,
+        sample=sample,
+        seed=-1
+    )
+
+    img_data = ootd_generator.generate_images()
+
+    return { "images": img_data }
+
+# old way that invoked script
+# replaced this by class-based alternative above
+def x_try_on(
     model_path="/app/run/examples/model/01008_00.jpg",
     cloth_path="/app/run/examples/garment/00055_00.jpg",
     category="full", scale="2.0", sample="1"
