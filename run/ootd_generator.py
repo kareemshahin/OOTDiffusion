@@ -97,22 +97,3 @@ class OOTDGenerator:
 
         return image_names
 
-
-# Example usage:
-
-if __name__ == '__main__':
-    # Instantiate the OOTDGenerator with the required parameters
-    ootd_generator = OOTDGenerator(
-        gpu_id=0,
-        model_path="path/to/model",
-        cloth_path="path/to/cloth",
-        model_type="hd",  # or "dc"
-        category=0,
-        scale=2.0,
-        step=20,
-        sample=4,
-        seed=-1
-    )
-
-    # Generate images
-    ootd_generator.generate_images()

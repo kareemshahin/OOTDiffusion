@@ -4,7 +4,7 @@ app = modal.App("baxter-try-on")
 #dockerfile_image = modal.Image.from_dockerfile("Dockerfile")
 dockerfile_image = (
     modal.Image.debian_slim(python_version="3.10")
-    .apt_install(["libgl1-mesa-glx", "libglib2.0-0", "libsm6", "libxrender1", "libxext6"])
+    .apt_install(["libgl1-mesa-glx", "libglib2.0-0", "libsm6", "libxrender1", "libxext6", "libavif-dev", "libaom-dev"])
     .pip_install("torch==2.0.1")
     .pip_install("torchvision==0.15.2")
     .pip_install("torchaudio==2.0.2")
@@ -36,7 +36,7 @@ def try_on(
     input_category = 2
 
     if category in ['lower', 'upper']:
-        model_type = 'hd'
+        model_type = 'hd' if category == 'upper' else 'dc'
         input_category = 0 if category == 'upper' else 1
 
     scale = float(scale)
@@ -57,6 +57,7 @@ def try_on(
 
     img_data = ootd_generator.generate_images()
 
+    print(img_data)
     return { "images": img_data }
 
 # old way that invoked script
