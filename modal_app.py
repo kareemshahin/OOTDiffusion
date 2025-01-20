@@ -10,6 +10,7 @@ dockerfile_image = (
     .pip_install("torchaudio==2.0.2")
     .pip_install_from_requirements("./requirements.txt")
     .pip_install("huggingface_hub==0.25.2")
+    .pip_install("requests")
     .workdir("/app/run")
     .add_local_dir(".", remote_path="/app")
 )
@@ -24,7 +25,7 @@ volume_map = {
 }
 WORKING_DIR = "/app/run"
 
-@app.function(gpu="A100", image=dockerfile_image, volumes=volume_map)
+@app.function(gpu="a10g", image=dockerfile_image, volumes=volume_map)
 def try_on(
     model_path="/app/run/examples/model/01008_00.jpg",
     cloth_path="/app/run/examples/garment/00055_00.jpg",

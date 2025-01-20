@@ -2,6 +2,8 @@ from pathlib import Path
 from PIL import Image
 import sys
 from utils_ootd import get_mask_location
+from urllib.parse import urlparse
+import requests
 
 PROJECT_ROOT = Path(__file__).absolute().parents[1].absolute()
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -51,9 +53,21 @@ class OOTDGenerator:
         timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
         return f"{timestamp}_{idx}.png"
 
+    def _is_url(self, string):
+        parsed = urlparse(string)
+        return bool(parsed.netloc) and bool(parsed.scheme)
+
+    def _open_image(self, path):
+        if self._is_url(path):
+            response = requests.get(path)
+            return Image.open(response.raw).resize((768, 1024))
+
+
+        return Image.open(path).resize((768, 1024))
+
     def generate_images(self):
-        cloth_img = Image.open(self.cloth_path).resize((768, 1024))
-        model_img = Image.open(self.model_path).resize((768, 1024))
+        cloth_img = self._open_image(self.cloth_path)
+        model_img = self._open_image(self.model_path)
 
         keypoints = self.openpose_model(model_img.resize((384, 512)))
         model_parse, _ = self.parsing_model(model_img.resize((384, 512)))
@@ -83,7 +97,7 @@ class OOTDGenerator:
             seed=self.seed,
         )
 
-        self._save_images(images)
+        return self._save_images(images)
 
     def _save_images(self, images):
         image_idx = 0
