@@ -14,8 +14,11 @@ dockerfile_image = (
     .workdir("/app/run")
     .add_local_dir(".", remote_path="/app")
 )
+aws_secret = modal.Secret.from_name('aws-s3-creds')
+
 checkpoints = modal.Volume.from_name("ootd-checkpoints")
-viton_output = modal.Volume.from_name("viton_output")
+#viton_output = modal.Volume.from_name("viton_output")
+viton_output = modal.CloudBucketMount( bucket_name="kms-baxter-tryon", secret=aws_secret)
 input_images = modal.Volume.from_name("input_images")
 
 volume_map = {

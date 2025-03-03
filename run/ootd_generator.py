@@ -1,6 +1,6 @@
 from pathlib import Path
 from PIL import Image
-import sys
+import sys, io
 from utils_ootd import get_mask_location
 from urllib.parse import urlparse
 import requests
@@ -59,8 +59,8 @@ class OOTDGenerator:
 
     def _open_image(self, path):
         if self._is_url(path):
-            response = requests.get(path)
-            return Image.open(response.raw).resize((768, 1024))
+            response = requests.get(path, stream=True)
+            return Image.open(io.BytesIO(response.content)).resize((768, 1024))
 
 
         return Image.open(path).resize((768, 1024))
