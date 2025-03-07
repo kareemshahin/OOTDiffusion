@@ -16,8 +16,9 @@ from datetime import datetime
 
 
 class OOTDGenerator:
-    def __init__(self, gpu_id=0, model_path="", cloth_path="", model_type="hd", category=0, scale=2.0, step=20, sample=4, seed=-1):
+    def __init__(self, gpu_id=0, namespace="test", model_path="", cloth_path="", model_type="hd", category=0, scale=2.0, step=20, sample=4, seed=-1):
         self.gpu_id = gpu_id
+        self.namespace= namespace
         self.model_path = model_path
         self.cloth_path = cloth_path
         self.model_type = model_type
@@ -51,7 +52,7 @@ class OOTDGenerator:
 
     def _generate_filename(self, idx=0):
         timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-        return f"{timestamp}_{idx}.png"
+        return f"{self.namespace}/{timestamp}_{idx}.png"
 
     def _is_url(self, string):
         parsed = urlparse(string)

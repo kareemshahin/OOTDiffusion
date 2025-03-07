@@ -1,4 +1,4 @@
-import modal
+import modal, os
 
 app = modal.App("baxter-try-on")
 #dockerfile_image = modal.Image.from_dockerfile("Dockerfile")
@@ -30,6 +30,7 @@ WORKING_DIR = "/app/run"
 
 @app.function(gpu="a10g", image=dockerfile_image, volumes=volume_map)
 def try_on(
+    namespace_prefix="test",
     model_path="/app/run/examples/model/01008_00.jpg",
     cloth_path="/app/run/examples/garment/00055_00.jpg",
     category="full", scale=2.0, sample=1
@@ -38,6 +39,8 @@ def try_on(
 
     model_type = 'dc'
     input_category = 2
+
+    os.makedirs(f"{WORKING_DIR}/outputs/{namespace_prefix}", exist_ok=True)
 
     if category in ['lower', 'upper']:
         model_type = 'hd' if category == 'upper' else 'dc'
@@ -49,6 +52,7 @@ def try_on(
 
     ootd_generator = OOTDGenerator(
         gpu_id=0,
+        namespace=namespace_prefix,
         model_path=model_path,
         cloth_path=cloth_path,
         model_type=model_type,
