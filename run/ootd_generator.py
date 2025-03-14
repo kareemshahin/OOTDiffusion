@@ -105,9 +105,10 @@ class OOTDGenerator:
         image_names = []
 
         for image in images:
-            img_filename = f"/app/run/outputs/{self._generate_filename(image_idx)}"
+            filename_loc = self._generate_filename(image_idx)
+            img_filename = f"/app/run/outputs/{filename_loc}"
             image.save(img_filename)
-            image_names.append(img_filename)
+            image_names.append(filename_loc)
             image_idx += 1
 
         return image_names
