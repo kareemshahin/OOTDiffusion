@@ -27,6 +27,8 @@ volume_map = {
     "/app/run/input_images": input_images,
 }
 WORKING_DIR = "/app/run"
+TRY_ON_SUBDIR = 'try_ons'
+TRY_ON_DIR = f"{WORKING_DIR}/outputs/{TRY_ON_SUBDIR}"
 
 @app.function(gpu="a10g", image=dockerfile_image, volumes=volume_map)
 def try_on(
@@ -40,7 +42,7 @@ def try_on(
     model_type = 'dc'
     input_category = 2
 
-    os.makedirs(f"{WORKING_DIR}/outputs/{namespace_prefix}", exist_ok=True)
+    os.makedirs(f"{TRY_ON_DIR}/{namespace_prefix}", exist_ok=True)
 
     if category in ['lower', 'upper']:
         model_type = 'hd' if category == 'upper' else 'dc'
@@ -52,7 +54,7 @@ def try_on(
 
     ootd_generator = OOTDGenerator(
         gpu_id=0,
-        namespace=namespace_prefix,
+        namespace=f"{TRY_ON_SUBDIR}/{namespace_prefix}",
         model_path=model_path,
         cloth_path=cloth_path,
         model_type=model_type,
